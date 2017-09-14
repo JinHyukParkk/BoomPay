@@ -1,0 +1,121 @@
+.mainbomb {
+    color: red;
+    -webkit-animation-name: bomb; /* Safari 4.0 - 8.0 */
+    -webkit-animation-duration: 4s; /* Safari 4.0 - 8.0 */
+        -o-animation-name: bomb; /* Safari 4.0 - 8.0 */
+    -o-animation-duration: 4s; /* Safari 4.0 - 8.0 */
+        -moz-animation-name: bomb; /* Safari 4.0 - 8.0 */
+    -moz-animation-duration: 4s; /* Safari 4.0 - 8.0 */
+    animation-name: bomb;
+    animation-duration: 4s;
+    margin:auto;
+}
+
+ .bombani {
+    color: black;
+    -webkit-animation-name: bombani; /* Safari 4.0 - 8.0 */
+    -webkit-animation-duration: 4s; /* Safari 4.0 - 8.0 */
+    -o-animation-name: bombani; /* Safari 4.0 - 8.0 */
+    -o-animation-duration: 4s; /* Safari 4.0 - 8.0 */
+    -moz-animation-name: bombani; /* Safari 4.0 - 8.0 */
+    -moz-animation-duration: 4s; /* Safari 4.0 - 8.0 */
+    animation-name: bombani;
+    animation-duration: 4s;
+    margin:auto;
+    
+    animation-iteration-count: infinite;
+    -webkit-animation-iteration-count: infinite;
+    -o-animation-iteration-count: infinite;
+    -moz-animation-iteration-count: infinite;
+}
+
+
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes bomb {
+    from {color: yellow;
+          font-size:0%;}
+    to {color: red;
+    font-size:100%;}
+}
+
+/* Standard syntax */
+@keyframes bomb {
+    from {color: yellow;
+          font-size:0%;}
+    to {color: red;
+    font-size:100%;}
+}
+
+
+@-webkit-keyframes bombani {
+    from {color: yellow;
+          font-size:0%;}
+    to {color: red;
+    font-size:100%;}
+}
+@-o-keyframes bombani {
+    from {color: yellow;
+          font-size:0%;}
+    to {color: red;
+    font-size:100%;}
+}
+@-moz-keyframes bombani {
+    from {color: yellow;
+          font-size:0%;}
+    to {color: red;
+    font-size:100%;}
+}
+
+/* Standard syntax */
+@keyframes bombani {
+    from {color: yellow;
+    font-size:0%;}
+    to {color: red;
+    font-size:100%;}
+}
+
+
+
+body {
+  font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+h1{
+	font-size: 5em;
+	font-family: arial,helvetica;
+	color: #fff;
+	margin:0;
+	padding:0;
+}
+.intro p{
+	color: #fff;
+}
+
+/* Centered texts in each section
+* --------------------------------------- */
+.section{
+	text-align:center;
+}
+
+
+
+
+
+/* Fixed header and footer.
+* --------------------------------------- */
+/*#header{
+	position:fixed;
+	height: 50px;
+	display:block;
+	width: 100%;
+	background: #333;
+	z-index:9;
+	text-align:center;
+	color: #f2f2f2;
+	padding: 20px 0 0 0;
+}
+
+#header{
+	top:0px;
+}*/

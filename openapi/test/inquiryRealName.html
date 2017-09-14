@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src='../js/jquery-2.2.2.min.js'></script>
+<script type="text/javascript" src='../js/system.js'></script>
+<script type="text/javascript" src='../js/util.js'></script>
+
+</head>
+<body>
+	<div>
+		<table>
+			<caption>계좌실명 조회</caption> <br/>
+			<colgroup>
+				<col style="width:180px" />
+				<col style="width:*" />
+			</colgroup>
+			<tbody>
+				<form name="authCodeFrm" id="authCodeFrm" method="GET" action="https://testapi.open-platform.or.kr/oauth/2.0/authorize">
+				<input type="hidden" id="response_type" 	name="response_type" value="code" />
+				<input type="hidden" id="scope" 	name="scope" value="oob" />
+				<input type="hidden" id="redirect_uri" 	name="redirect_uri" value="http://localhost:8080/openapi/test/callback.html" />
+				<tr>
+					<th><span class="ess">Client ID</span></th>
+					<td><span ><input type="text" id="client_id" name="client_id" style="width:200px" value="l7xx4c45bc4757a149aa9aa74804997f1798"></span>
+				</tr>
+				</form>
+				<tr>
+					<th><span>Client Secret</span></th>
+					<td><span><input type="text" id="client_secret" name="client_secret" style="width:200px" value="5868508447d14c7bb24ff407481e7ca7"></span></td>
+				</tr>
+				<tr>
+					<th><span>Access Token</span></th>
+					<td><span><input type="text"  id="access_token" name="access_token" style="background:#e0e0e0" ></span>
+					<button type="button" onclick="fnSearchAccessToken()">토큰발급</button></td>
+				</tr>
+				<tr>
+					<th><span>은행코드</span></th>
+					<td><span><input type="text" class="txt"  id="bank_code_std" name="bank_code_std" value="002" ></span></td>
+				</tr>
+				<tr>
+					<th><span>계좌번호</span></th>
+					<td><span><input type="text" class="txt"  id="account_num" name="account_num" value="00100212340000"></span>
+					</td>
+				</tr>
+				<tr>
+					<th><span>예금주 생년월일</span></th>
+					<td><span><input type="text" class="txt" id="account_holder_info" name="account_holder_info" value="7711111"  /></span>
+				</tr>
+				<tr>
+					<th><span>요청일시</span></th>
+					<td><span style="width:200px"><input type="text" class="txt" id="tran_dtime" title="요청일시 입력" name="tran_dtime"  /></span>
+					<button type="button" onclick="fnSearchRealName()">계좌실명조회</button></td>
+				</tr>
+				<tr>
+					<th><span>계좌실명조회결과</span></th>
+					<td>
+						<textarea style="height:220px;width:250px" id="real_name" name="real_name"></textarea>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+	</div>
+</body>
+
+<script type="text/javascript">
+
+	$.support.cors = true;
+	var currentTime = new Date().format("yyyyMMddHHmmss");
+	$("#tran_dtime").val(currentTime);
+
+
+	/* 사용자인증 Access Token 획득 */
+	function fnSearchAccessToken()
+	{
+		var client_id = $("#client_id").val();
+		var client_secret = $("#client_secret").val();
+		var  grant_type = "client_credentials";
+		var scope = "oob";
+		 $.ajax({
+			//url: "/tpt/test/getOauthToken",
+			url: "https://testapi.open-platform.or.kr/oauth/2.0/token",
+			type: "POST",
+			//cache: false,
+			contenType: "application/json",
+			data: {"client_id":client_id,"client_secret":client_secret,"grant_type":grant_type,"scope":scope},
+			dataType: "json",
+			success : function (data, data2, data3) {
+				var list = JSON.parse(data3.responseText);
+				$("#access_token").val(list.access_token);
+				},
+			error : function (data,data2, data3) {
+				alert('error!!!');
+			}
+		});
+	}
+	fnSearchAccessToken();
+	/* 계좌실명조회API */
+	function fnSearchRealName()
+	{
+		var bank_code_std = $("#bank_code_std").val();
+		var account_num = $("#account_num").val();
+		var account_holder_info = $("#account_holder_info").val();
+		var tran_dtime = $("#tran_dtime").val();
+
+		var  access_token = "Bearer "+$("#access_token").val();
+
+		var resData = {"bank_code_std":bank_code_std,"account_num":account_num,"account_holder_info":account_holder_info,"tran_dtime":tran_dtime};
+
+		 $.ajax({
+			url: "https://testapi.open-platform.or.kr/v1.0/inquiry/real_name",
+			beforeSend : function(request){
+				request.setRequestHeader("Authorization", access_token);
+				//request.setRequestHeader("Content-Type", "application/json");
+			},
+			type: "POST",
+			//data: {"bank_code_std":bank_code_std,"account_num":account_num,"account_holder_info":account_holder_info,"tran_dtime":tran_dtime},
+			data: JSON.stringify(resData),
+			dataType: "json",
+			success : function (data, data2, data3) {
+
+				console.log("data==" + data);
+				console.log("data2==" + data2);
+				console.log("data3==" + data3);
+				console.log("data3.res==" + data3.responseText);
+				//var list = JSON.parse(data);
+				$("#real_name").text(data3.responseText.replace(/,/gi, ",\n"));
+				},
+			error : function (data,data2, data3) {
+				alert('error!!!');
+			}
+		});
+	}
+</script>
+</html>

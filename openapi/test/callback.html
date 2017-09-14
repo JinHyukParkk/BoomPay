@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+</head>
+<body>
+
+<script type="text/javascript">
+var Request = function() {
+	this.getParameter = function( name ) {
+		var rtnVal = '';
+		var nowAddress = unescape(location.href);
+		var parameters = (nowAddress.slice(nowAddress.indexOf('?')+1, nowAddress.length)).split('&');
+		
+		for(var i = 0; i < parameters.length; i++) {
+			var varName = parameters[i].split('=')[0];
+			if(varName.toUpperCase() == name.toUpperCase()) {
+				rtnVal = parameters[i].split('=')[1];
+				break;
+			}
+		}
+		
+		return rtnVal;
+	}
+}
+
+var request = new Request();
+var code = request.getParameter("code");
+var scope = request.getParameter("scope");
+
+if(code != "" ){
+	window.opener.fnGetAuthCode(code,scope);
+	self.close();
+}
+</script>
+</body>
+</html>

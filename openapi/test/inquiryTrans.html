@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src='../js/jquery-2.2.2.min.js'></script>
+<script type="text/javascript" src='../js/system.js'></script>
+<script type="text/javascript" src='../js/util.js'></script>
+
+</head>
+<body>
+	<div>
+		<table>
+			<caption>거래내역 조회</caption> <br/>
+			<colgroup>
+				<col style="width:180px" />
+				<col style="width:*" />
+			</colgroup>
+			<tbody>
+				<form name="authCodeFrm" id="authCodeFrm" method="GET" action="https://testapi.open-platform.or.kr/oauth/2.0/authorize">
+				<input type="hidden" id="response_type" 	name="response_type" value="code" />
+				<input type="hidden" id="scope" 	name="scope" value="inquiry" />
+				<input type="hidden" id="redirect_uri" 	name="redirect_uri" value="http://localhost:8080/openapi/test/callback.html" />
+				<input type="hidden" id="inquiry_type" 	name="inquiry_type" value="A" />
+				<tr>
+					<th><span class="ess">Client ID</span></th>
+					<td><span ><input type="text" id="client_id" name="client_id" style="width:200px" value="l7xx4c45bc4757a149aa9aa74804997f1798"></span>
+				</tr>
+				</form>
+				<tr>
+					<th><span>Authorization Code</span></th>
+					<td><span><input type="text" id="auth_code" name="auth_code" style="background:#e0e0e0" style="width:200px"  /></span>
+					<button type="button" onclick="fnSearchAuthCode()">사용자인증</button></td>
+				</tr>
+				<tr>
+					<th><span>Client Secret</span></th>
+					<td><span><input type="text" id="client_secret" name="client_secret" style="width:200px" value="5868508447d14c7bb24ff407481e7ca7"></span></td>
+				</tr>
+				<tr>
+					<th><span>사용자일련번호</span></th>
+					<td><span>
+					<input type="text" class="txt"  id="user_seq_no" name="user_seq_no" style="background:#e0e0e0"  ></span>
+					</td>
+				</tr>
+				<tr>
+					<th><span>Access Token</span></th>
+					<td><span><input type="text"  id="access_token" name="access_token" style="background:#e0e0e0" ></span>
+					<button type="button" onclick="fnSearchAccessToken()">토큰발급</button></td>
+				</tr>
+				<tr>
+					<th><span>핀테크이용번호</span></th>
+					<td><span><input type="text" class="txt" title="핀테크이용번호 입력"  id="fintech_use_num" name="fintech_use_num" value="110000105510000000010511" /></span>
+				</tr>
+				<tr>
+					<th>조회기간</th>
+					<td><span><input type="text" class="txt" id="from_date" title="조회 시작일 입력" name="from_date" value="20160511" /></span>
+					<span><input type="text" class="txt" id="to_date" name="to_date" title="조회 종료일 입력" value="20160530" /></span>
+					</td>
+				</tr>
+				<tr>
+					<th><span>요청일시</span></th>
+					<td><span style="width:200px"><input type="text" class="txt" id="tran_dtime" title="요청일시 입력" name="tran_dtime"  /></span>
+					</td>
+				</tr>
+				<tr>
+					<th><span>페이지번호</span></th>
+					<td><span ><input type="text" id="page_index" name="page_index" value="00001" /></span>
+					<button type="button" onclick="fnSearchTransList()">거래내역조회</button></td>
+				</tr>
+				<tr>
+					<th><span>거래내역결과</span></th>
+					<td>
+						<textarea style="height:220px;width:250px" id="inquiry_trans_list" name="inquiry_trans_list"></textarea>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+	</div>
+</body>
+
+<script type="text/javascript">
+
+	$.support.cors = true;
+	var currentTime = new Date().format("yyyyMMddHHmmss");
+	$("#tran_dtime").val(currentTime);
+
+	function fnSearchAuthCode()
+	{
+		var client_id = $("#client_id").val();
+		if(client_id=="" ){
+			alert("client_id 를 입력해주세요")
+			$("#client_id").focus();
+			return;
+		}
+
+		var f = document.authCodeFrm;
+		f.target = "blank";
+		f.submit();
+	}
+
+	/* Authoriztion Code 얻기 */
+	function fnGetAuthCode(auth_code,scope)
+	{
+		$("#auth_code").val(auth_code);
+	}
+
+	/* 사용자인증 Access Token 획득 */
+	function fnSearchAccessToken()
+	{
+		var code = $("#auth_code").val();
+		var client_id = $("#client_id").val();
+		var client_secret = $("#client_secret").val();
+		var redirect_uri = "http://localhost:8080/openapi/test/callback.html";
+		var  grant_type = "authorization_code";
+		 $.ajax({
+			//url: "/tpt/test/getOauthToken",
+			url: "https://testapi.open-platform.or.kr/oauth/2.0/token",
+			type: "POST",
+			cache: false,
+			contenType: "application/json",
+			data: {"code":code,"client_id":client_id,"client_secret":client_secret,"redirect_uri":redirect_uri,"grant_type":grant_type},
+			dataType: "json",
+			success : function (data, data2, data3) {
+				var list = JSON.parse(data3.responseText);
+				$("#access_token").val(list.access_token);
+				$("#user_seq_no").val(list.user_seq_no);
+				},
+			error : function (data,data2, data3) {
+				alert('error!!!');
+			}
+		});
+
+	}
+
+	/* 거래내역조회API */
+	function fnSearchTransList()
+	{
+		//getInquryAccountTest
+		var fintech_use_num = $("#fintech_use_num").val();
+		var tran_dtime = $("#tran_dtime").val();
+		var inquiry_type = "A";
+		var from_date = $("#from_date").val();
+		var to_date = $("#to_date").val();
+		var sort_order = "D";
+		var page_index = $("#page_index").val();
+
+		//alert(from_date); //return;
+
+		var  access_token = "Bearer "+$("#access_token").val();
+
+		 $.ajax({
+			//url: "/tpt/test/getOauthToken",
+			url: "https://testapi.open-platform.or.kr/v1.0/account/transaction_list",
+			beforeSend : function(request){
+				request.setRequestHeader("Authorization", access_token);
+			},
+			type: "GET",
+			contenType: "application/json",
+			data: {"fintech_use_num":fintech_use_num,"tran_dtime":tran_dtime,"inquiry_type":inquiry_type
+						,"from_date":from_date,"to_date":to_date,"sort_order":sort_order,"page_index":page_index},
+			dataType: "json",
+			success : function (data, data2, data3) {
+				/*  alert(data);
+				alert(data2);
+				alert(data3.responseText);
+				var list = JSON.parse(data);	 */
+				$("#inquiry_trans_list").val(data3.responseText.replace(/,/gi, ",\n"));
+				},
+			error : function (data,data2, data3) {
+				alert('error!!!');
+			}
+		});
+		
+	}
+
+</script>
+</html>
