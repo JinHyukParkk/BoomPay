@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="text/javascript" src='../js/jquery-2.2.2.min.js'></script>
+    <script type="text/javascript" src='../js/util.js'></script>
+
+</head>
+
+<body>
+    <form name="authCodeFrm" id="authCodeFrm" method="GET" action="https://testapi.open-platform.or.kr/oauth/2.0/authorize">
+		<input type="hidden" id="response_type" name="response_type" value="code" />
+        <input type="hidden" id="scope" name="scope" value="login" />
+        <input type="hidden" id="redirect_uri" name="redirect_uri" value="http://localhost:8080/openapi/test/callback.html" />
+        <input type="hidden" id="client_id" name="client_id" style="width:200px" value="l7xx4c45bc4757a149aa9aa74804997f1798">
+        <input type="hidden" id="auth_code" name="auth_code" />
+        <input type="hidden" id="client_secret" name="client_secret" style="width:200px" value="5868508447d14c7bb24ff407481e7ca7">
+		<input type="hidden" class="txt"  id="user_seq_no" name="user_seq_no">
+    </form>
+        <input type="hidden"  id="access_token" name="access_token">
+        <input type="hidden" id="client_use_code" name="client_use_code">
+
+        <p><textarea style="height:220px;width:250px" id="inquiry_account" name="inquiry_account"></textarea></p>
+        <p><textarea style="height:220px;width:250px" id="test"></textarea></p>
+</body>
+
+<script type="text/javascript">
+
+    $.support.cors = true;
+    var currentTime = new Date().format("yyyyMMddHHmmss");
+    $("#tran_dtime").val(currentTime);
+
+    function fnSearchAuthCode() {
+        var client_id = "l7xx4c45bc4757a149aa9aa74804997f1798";
+        var f = document.authCodeFrm;
+        f.setAttribute("action", "https://testapi.open-platform.or.kr/oauth/2.0/authorize");
+        $("#scope").val("login");
+        f.target = "blank";
+        f.submit();
+    }
+
+	fnSearchAuthCode();
+
+    /* Authoriztion Code 얻기 */
+    function fnGetAuthCode(auth_code, scope) {
+        if (scope == "login") {
+            $("#auth_code").val(auth_code);
+        } else {
+            $("#auth_code2").val(auth_code);
+        }
+		return fnSearchAccessToken();
+    }
+
+    /* 사용자인증 Access Token 획득 */
+    function fnSearchAccessToken() {
+        var code = $("#auth_code").val();
+        var client_id = "l7xx4c45bc4757a149aa9aa74804997f1798";
+        var client_secret = "5868508447d14c7bb24ff407481e7ca7";
+        var redirect_uri = "http://localhost:8080/openapi/test/callback.html";
+        var grant_type = "authorization_code";
+
+        $.ajax({
+            url: "https://testapi.open-platform.or.kr/oauth/2.0/token",
+            type: "POST",
+            cache: false,
+            data: {
+                "code": code,
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "redirect_uri": redirect_uri,
+                "grant_type": grant_type
+            },
+            dataType: "json",
+            success: function(data, data2, data3) {
+                var list = JSON.parse(data3.responseText);
+                $("#access_token").val(list.access_token);
+                $("#user_seq_no").val(list.user_seq_no);
+				return fnSearchAccount();
+            },
+            error: function(data, data2, data3) {
+                alert(data);
+                alert(data2);
+                alert(data3);
+                alert('error!!!');
+            }
+        });
+
+    }
+
+    /* 사용자정보조회 */
+    function fnSearchAccount() {
+        var user_seq_no = $("#user_seq_no").val();
+        var tran_dtime = new Date().format("yyyyMMddHHmmss");
+        var access_token = "Bearer " + $("#access_token").val();
+
+        $.ajax({
+            url: "https://testapi.open-platform.or.kr/v1.0/user/me",
+            beforeSend: function(request) {
+                request.setRequestHeader("Authorization", access_token);
+            },
+            type: "GET",
+            data: {
+                "user_seq_no": user_seq_no,
+                "tran_dtime": tran_dtime
+            },
+            dataType: "json",
+            success: function(data, data2, data3) {
+                var list = JSON.parse(data3.responseText);
+                $("#inquiry_account").val(data3.responseText.replace(/,/gi, ",\n"));
+                return loginDataPasingData(data3.responseText.replace(/,/gi, ",\n"));
+            },
+            error: function(data, data2, data3) {
+                console.log(data);
+                console.log(data2);
+                console.log(data3);
+                alert('error!!!');
+            }
+        });
+    }
+
+    function loginDataPasingData(pasDate){
+
+		var content = JSON.parse(pasDate);
+
+        var output = "사용자 이름 : " + content.user_name + "\n계좌 갯수 : " + content.res_cnt;
+
+        var incotent = content.res_list;
+        for (var i = 0 ; i< incotent.length; i++){
+            output += "\n\n핀테크 이용번호 : " + incotent[i].fintech_use_num;
+            output += "\n은행 코드 : " + incotent[i].bank_code_std;
+            output += "\n계좌 이름 : " + incotent[i].account_alias;
+            output += "\n계좌 번호 : " + incotent[i].account_num_masked;
+        }
+
+        $("#test").val(output);
+	}
+</script>
+
+</html>

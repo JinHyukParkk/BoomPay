@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="text/javascript" src='../js/jquery-2.2.2.min.js'></script>
+    <script type="text/javascript" src='../js/system.js'></script>
+    <script type="text/javascript" src='../js/util.js'></script>
+
+</head>
+
+<body>
+    <input type="text" id="access_token" name="access_token" style="background:#e0e0e0">
+</body>
+
+<script type="text/javascript">
+
+	function fnSearchAccessToken() {
+        var client_id = "l7xx4c45bc4757a149aa9aa74804997f1798"
+        var client_secret = "5868508447d14c7bb24ff407481e7ca7";
+        var grant_type = "client_credentials";
+        var scope = "oob";
+        $.ajax({
+            url: "https://testapi.open-platform.or.kr/oauth/2.0/token",
+            type: "POST",
+            contenType: "application/json",
+            data: {
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "grant_type": grant_type,
+                "scope": scope
+            },
+            dataType: "json",
+            success: function(data, data2, data3) {
+                var list = JSON.parse(data3.responseText);
+                $("#access_token").val(list.access_token);
+                $("#user_seq_no").val(list.user_seq_no);
+            },
+            error: function(data, data2, data3) {
+                alert('error!!!');
+            }
+        });
+    }
+    fnSearchAccessToken();
+</script>
+
+</html>
