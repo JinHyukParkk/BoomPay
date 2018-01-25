@@ -4,11 +4,14 @@ BombPay
 간편 분할 결제 서비스
 -------------
 
-시연 영상
+## 개요
+ 2016 금융API를 활용한 핀테크 해커톤에 출전하여 개발한 "BoomPay"라는 애플리케이션입니다. 해당 앱은 가상계좌를 발급받아 출/입금이 가능하며 금융API 사용을 위해서 'KISA'에서 제공하는 네트워크를 이용해야합니다. 
+
+## 시연 영상
 -------------
 [![Alt text](https://img.youtube.com/vi/UvhjjFM3wfA/0.jpg)](https://www.youtube.com/watch?v=UvhjjFM3wfA)
 
-실행 방법
+## 실행 방법
 -------------
 
 방장 - 방만들기
